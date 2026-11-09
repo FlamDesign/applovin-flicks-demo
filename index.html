@@ -244,7 +244,7 @@ a{color:inherit}
 .vid.light .cap{color:#1d1a2e;text-shadow:none}
 
 /* interactive page frame (also used for app open, playable, end card) */
-.ipage{position:absolute;inset:0;display:flex;flex-direction:column;padding:108px 16px 112px;overflow:hidden}
+.ipage{position:absolute;inset:0;display:flex;flex-direction:column;padding:132px 16px 112px;overflow:hidden}
 .ipage .bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(30px) saturate(1.2);opacity:.55;z-index:0}
 .ipage .bg2{position:absolute;inset:0;z-index:0}
 .ipage > *:not(.bg):not(.bg2){position:relative;z-index:1}
@@ -279,14 +279,14 @@ a{color:inherit}
 .blocker{position:absolute;inset:0;z-index:5;cursor:not-allowed}
 
 /* catalog */
-.cat{position:absolute;inset:0;background:#f6f4f0;color:#1d1a2e;display:flex;flex-direction:column;padding-top:108px}
+.cat{position:absolute;inset:0;background:#f6f4f0;color:#1d1a2e;display:flex;flex-direction:column;padding-top:132px}
 .cat-h{padding:0 16px 10px;display:flex;align-items:flex-end;gap:10px}
 .cat-h .lg{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;flex:none}
 .cat-h b{display:block;font-size:20px;letter-spacing:-.01em}
 .cat-h span{font-size:13px;color:#6c6782}
 .cat-grid{flex:1;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 12px 24px;align-content:start}
 .tile{background:#fff;border-radius:16px;overflow:hidden;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;flex-direction:column;position:relative}
-.tile .im{aspect-ratio:3/4;background:#efede8;overflow:hidden}
+.tile .im{flex:none;aspect-ratio:3/4;background:#efede8;overflow:hidden}
 .tile .im img{width:100%;height:100%;object-fit:cover;display:block}
 .tile .tn{padding:8px 10px 2px;font-size:13px;font-weight:600;line-height:1.25;min-height:42px}
 .tile .ts{padding:0 10px 10px;font-size:12px;color:#2f6bff;font-weight:600}
@@ -359,8 +359,8 @@ a{color:inherit}
   .safe-top{height:calc(env(safe-area-inset-top) + 52px)}
   .ad-top{padding-top:calc(env(safe-area-inset-top) + 56px)}
   .rw-bar,.parts{top:calc(env(safe-area-inset-top) + 100px)}
-  .ipage{padding-top:calc(env(safe-area-inset-top) + 108px)}
-  .cat{padding-top:calc(env(safe-area-inset-top) + 110px)}
+  .ipage{padding-top:calc(env(safe-area-inset-top) + 132px)}
+  .cat{padding-top:calc(env(safe-area-inset-top) + 132px)}
   .msheet{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
   .msheet.on{display:flex}
   .msheet > div{width:100%;max-height:82vh;overflow:auto;background:#fff;border-radius:26px 26px 0 0;padding:18px 20px calc(env(safe-area-inset-bottom) + 20px);animation:sup .3s ease-out}
