@@ -1012,7 +1012,7 @@ function adDsp(part=0){
   openAd(()=>{
     if(MODE==="today") return { html:`<div class="ipage" style="background:#0f0f10"><div class="bg" style="background-image:url('${B.variants[0].img}')"></div>
         <div class="ip-head"><div class="k">Cadillac</div><h3>Move into EV luxury.</h3></div>
-        <div class="stagebox"><div class="fbox" style="aspect-ratio:16/10"><img class="still" src="${B.variants[0].img}" alt="Cadillac Optiq"></div></div>
+        <div class="stagebox"><div class="fbox sq"><img class="still" src="${B.variants[0].img}" alt="Cadillac Optiq"></div></div>
         <div class="flatnote">Static companion end card.</div></div>${ctaBar("cad","cadillac.com")}`,
       chrome:{label:"Ad",close:3,parts:["Video","End card"],part:1}, onClose:()=>go("end") };
     const host=flickHost("cad"), sid=lastSlot();
