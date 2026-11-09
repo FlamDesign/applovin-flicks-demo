@@ -262,6 +262,8 @@ a{color:inherit}
 .vchip.on{background:#fff;color:#1d1a2e}
 .tapnote{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;margin-top:10px;opacity:.85}
 .tapnote .dot{width:8px;height:8px;border-radius:50%;background:#7ef0b0;box-shadow:0 0 0 4px rgba(126,240,176,.25);animation:pulse 1.4s infinite}
+.nowpill{position:absolute;left:50%;transform:translateX(-50%);bottom:112px;z-index:31;display:flex;align-items:center;gap:6px;white-space:nowrap;background:rgba(0,0,0,.6);color:#fff;font-size:13px;padding:7px 12px;border-radius:999px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.nowpill .dot{width:8px;height:8px;border-radius:50%;background:#7ef0b0}
 .flatnote{font-size:13px;opacity:.7;text-align:center;margin-top:10px}
 
 /* flick host */
@@ -498,9 +500,6 @@ const CAD = id => `https://storage.googleapis.com/bucket-fi-production-apps-0672
 const GAPB = p => `https://content.gapinc.com/b/${p}`;
 const GAPW = p => `https://www.gap.com/webcontent/${p}`;
 const BR = {
-  merc:{ name:"Mercedes-Benz", short:"S-Class", domain:"mbusa.com", url:"https://www.mbusa.com/en/vehicles/class/s-class/sedan", color:"#111", logoTxt:"MB",
-    src:"https://native-ads.appless.workers.dev/6a9bc07393e71f3ec9b12c81_i3pdeq/ad.js", base:[540,540], cta:"Explore",
-    variants:[{n:"White",img:"assets/merc-white.webp"},{n:"Green",img:"assets/merc-green.webp"},{n:"Black",img:"assets/merc-black.webp"}] },
   dor:{ name:"Doritos", short:"Doritos", domain:"doritos.com", url:"https://www.doritos.com/", color:"#d7261e", logoTxt:"D",
     src:"https://native-ads-dev.appless.workers.dev/6a96c6969e74536944c4167f_vqdcng/ad.js", base:[540,540], cta:"Buy now",
     variants:[{n:"Cool Ranch",img:IC("large_74f96a90-3a0c-455f-ada1-aae6b5bc8ef0.png")},{n:"Nacho Cheese",img:IC("large_0e547e89-6302-431a-8619-ac30c4dab0da.png")},{n:"Spicy Sweet Chili",img:IC("large_790e43bb-85af-451a-9339-6791be9f31ee.png")}] },
@@ -516,6 +515,9 @@ const BR = {
   acer:{ name:"Acer", short:"Acer laptops", domain:"store.acer.com", url:"https://store.acer.com/en-us/", color:"#83b81a", logoTxt:"acer",
     src:"https://storage.googleapis.com/bucket-fi-development-apps-5b0640d5/app/abc/videos/eeeu318dko8uchkx61k7dwza.js", base:[360,640], cta:"Buy now",
     variants:[{n:"Predator Helios Neo 16 AI",url:"https://store.acer.com/en-us/predator-helios-neo-16-ai-gaming-laptop-phn16-73-97fv"},{n:"Chromebook 314",url:"https://store.acer.com/en-us/acer-chromebook-314-cboa314-2h-8878"},{n:"Nitro V 16 AI",url:"https://store.acer.com/en-us/nitro-v-16-ai-gaming-laptop-anv16-61-r2qy"}] },
+  zara:{ name:"Zara", short:"Zara", domain:"zara.com", url:"https://www.zara.com/us/", color:"#000", logoTxt:"ZARA", bg:"#fff",
+    src:"https://native-ads-dev.appless.workers.dev/zara/ad.js", base:[360,640], cta:"Shop now",
+    variants:[{n:"Check jacket"},{n:"Red jacket"},{n:"Polka dot look"}] },
   sony:{ name:"Sony", short:"WH-CH720N", domain:"electronics.sony.com", url:"https://electronics.sony.com/", color:"#111", logoTxt:"SONY",
     src:"https://native-ads-dev.appless.workers.dev/6a96c6969e74536944c4167f_dj5rq6/ad.js", base:[540,540], cta:"Shop",
     variants:[{n:"Black",img:"assets/w-sonyMain-0.jpg"},{n:"White"},{n:"Blue"}] },
@@ -547,10 +549,10 @@ const FMT = [
   { id:"appopen", name:"App open", route:"concept", routeTxt:"Concept",
     where:"Cold start, right after the splash screen tells the player an ad is coming.",
     rule:"Full screen, behaves like an interstitial. Skip after 5 seconds.",
-    flick:"The launch ad becomes a showroom: tap a paint and the S-Class changes inside the same video.",
-    learns:"Which paint wins, by audience, in aggregate.",
+    flick:"The launch ad becomes a full-screen 9:16 Flick: tap a laptop and the same video switches to it.",
+    learns:"Which laptop wins, by audience, in aggregate.",
     routeLong:"Concept. AppLovin to confirm its demand fills app open placements.",
-    today:"A single still image, the same for every player.", withf:"The Mercedes-Benz Flick. Tap a color swatch in the video." },
+    today:"A flat video. Every player sees the same cut and taps do nothing.", withf:"The Acer Flick, full screen. Tap a laptop in the video." },
   { id:"banner", name:"Banner 320x50", route:"today", routeTxt:"Runs today",
     where:"Always on, at the bottom of the home and level screens. Never covers play.",
     rule:"320x50, HTML or MRAID, refreshes on its own.",
@@ -575,10 +577,10 @@ const FMT = [
   { id:"rewarded", name:"Rewarded video", route:"next", routeTxt:"Next",
     where:"The player runs out of moves and chooses to watch for +5 moves.",
     rule:"Plays through, up to 60s, then the interactive page. Reward granted when it ends.",
-    flick:"The video itself switches. Three laptops in one 60s slot, chosen by a viewer giving full attention.",
-    learns:"Preference at the moment of highest attention in the whole game.",
+    flick:"The video itself switches. Three Zara looks in one slot, chosen by a viewer giving full attention.",
+    learns:"Style preference at the moment of highest attention in the whole game.",
     routeLong:"Next. Needs a native Flick format in the AppLovin SDK for the video slot.",
-    today:"A flat video. Every viewer sees the same cut and taps do nothing.", withf:"The Acer Flick plays as the rewarded video. Tap a laptop to switch." },
+    today:"A flat video. Every viewer sees the same cut and taps do nothing.", withf:"The Zara Flick, full-screen 9:16, plays as the rewarded video. Tap a look to switch." },
   { id:"native", name:"Native", route:"next", routeTxt:"Next",
     where:"Inside the game's own shop list, styled like the shop cards.",
     rule:"Small (360x120) or Medium (300x250) template. Title up to 50 characters. Privacy icon required.",
@@ -639,7 +641,7 @@ new MutationObserver(function(){var v=document.querySelector("vertex-player");if
 window.addEventListener("error",function(e){var s=e.target;if(s&&s.tagName==="SCRIPT")t({type:"error",msg:"Could not load the Flick"})},true);})();`;
   const cfg = b.adConfig ? `<script>${b.adConfig}<\/script>` : "";
   const fonts = b.fontScan ? `<script>(function(){var seen={},head=document.head||document.documentElement,until=Date.now()+3e4;function add(css){if(seen[css])return;seen[css]=1;var s=document.createElement("style");s.textContent=css;head.appendChild(s)}function scan(){try{var ps=document.getElementsByTagName("vertex-player");for(var i=0;i<ps.length;i++){var r=ps[i].shadowRoot;if(!r)continue;var n=r.querySelectorAll("style,link[rel=stylesheet]");for(var j=0;j<n.length;j++){var el=n[j];if(el.tagName==="LINK"){if(/fonts\\.googleapis\\.com/.test(el.href)&&!seen[el.href]){seen[el.href]=1;var l=document.createElement("link");l.rel="stylesheet";l.href=el.href;head.appendChild(l)}continue}var m=(el.textContent||"").match(/@font-face\\s*\\{[^}]*\\}/g);if(m)add(m.join(""))}}}catch(e){}if(Date.now()<until)setTimeout(scan,250)}scan()})();<\/script>` : "";
-  return `<!doctype html><meta charset=utf-8><meta name=ad.orientation content=portrait,landscape><style>html,body{margin:0;height:100%;background:#0d0d0f;overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent}</style><script>${bridge}<\/script><script>var ExitApi=window.ExitApi||{exit:function(){}},clickTag="";<\/script>${cfg}${fonts}<script src=${b.src}><\/script>`;
+  return `<!doctype html><meta charset=utf-8><meta name=ad.orientation content=portrait,landscape><style>html,body{margin:0;height:100%;background:${b.bg||"#0d0d0f"};overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent}</style><script>${bridge}<\/script><script>var ExitApi=window.ExitApi||{exit:function(){}},clickTag="";<\/script>${cfg}${fonts}<script src=${b.src}><\/script>`;
 }
 /* Returns host markup; call mountFlicks(root) after it is in the DOM. */
 function flickHost(brand, opts={}){
@@ -677,7 +679,7 @@ addEventListener("message", e=>{
 });
 const PICK = {};
 function chips(brand, slotId){ return `<div class="vchips" data-chips="${slotId}">${BR[brand].variants.map((v,i)=>`<span class="vchip ${i===0?"on":""}">${esc(v.n)}</span>`).join("")}</div>`; }
-function syncChips(slotId){ const s=SLOTS[slotId]; document.querySelectorAll(`[data-chips="${slotId}"] .vchip`).forEach((c,i)=>c.classList.toggle("on",i===s.variant)); }
+function syncChips(slotId){ const s=SLOTS[slotId]; const np=document.querySelector(`[data-now="${slotId}"] b`); if(np) np.textContent=BR[s.brand].variants[s.variant].n; document.querySelectorAll(`[data-chips="${slotId}"] .vchip`).forEach((c,i)=>c.classList.toggle("on",i===s.variant)); }
 function lastSlot(){ return "s"+slotSeq; }
 
 /* =====================================================================
@@ -908,21 +910,16 @@ function stillVideo(shots, caps, secs, light){
   return { html, run };
 }
 
-/* ---------- 1. app open (Mercedes) ---------- */
+/* ---------- 1. app open (Acer, 9:16) ---------- */
+function fullFlick(brand, flat){
+  const host=flickHost(brand,{block:flat}), sid=lastSlot();
+  return `<div class="ipage" style="padding:0;background:#000"><div style="position:absolute;inset:0">${host}</div></div>
+    <div class="nowpill" data-now="${sid}">${flat?"Flat video. Everyone sees the same cut.":`<span class="dot"></span>Now showing: <b>${esc(BR[brand].variants[0].n)}</b>`}</div>`;
+}
 function adAppOpen(){
   openAd(()=>{
-    const B=BR.merc;
-    if(MODE==="today") return { html:`<div class="ipage" style="background:#0e0e10"><div class="bg" style="background-image:url('${B.variants[0].img}')"></div>
-        <div class="ip-head"><div class="k">Mercedes-Benz</div><h3>The new S-Class. Leadership, redefined.</h3></div>
-        <div class="stagebox"><div class="fbox" style="aspect-ratio:1371/681"><img class="still" src="${B.variants[0].img}" alt="Mercedes-Benz S-Class in white"></div></div>
-        <div class="flatnote">One still image. Every player sees the same car.</div></div>${ctaBar("merc","mbusa.com")}`,
-      chrome:{label:"Ad",close:5,skip:false}, onClose:()=>go("home") };
-    const host=flickHost("merc"), sid=lastSlot();
-    return { html:`<div class="ipage" style="background:#0e0e10"><div class="bg2" style="background:radial-gradient(90% 50% at 50% 40%,#2c2d33,#0e0e10)"></div>
-        <div class="ip-head"><div class="k">Mercedes-Benz</div><h3>The new S-Class. Choose its color.</h3></div>
-        <div class="stagebox"><div class="fbox sq">${host}</div></div>${chips("merc",sid)}
-        <div class="tapnote"><span class="dot"></span>Tap a swatch in the video. Same video, new paint.</div></div>${ctaBar("merc","mbusa.com")}`,
-      chrome:{label:"Ad",close:5}, onClose:()=>go("home") };
+    const flat = MODE==="today";
+    return { html: fullFlick("acer",flat)+ctaBar("acer","store.acer.com"), chrome:{label:"Ad",close:5}, onClose:()=>go("home") };
   });
 }
 
@@ -972,10 +969,7 @@ function tile(n,img,url){ return `<button class="tile" onclick="leave('gap','${u
 function adRewarded(){
   const secs=20;
   openAd(()=>{
-    const host=flickHost("acer",{block:MODE==="today"}), sid=lastSlot();
-    return { html:`<div class="ipage" style="padding:0;background:#000"><div style="position:absolute;inset:0">${host}</div></div>
-      ${MODE==="flick"?`<div style="position:absolute;left:0;right:0;bottom:110px;z-index:31">${chips("acer",sid)}</div>`:`<div class="flatnote" style="position:absolute;left:0;right:0;bottom:112px;z-index:31">Flat video. Everyone sees the same cut.</div>`}
-      ${ctaBar("acer","store.acer.com")}`,
+    return { html: fullFlick("zara", MODE==="today")+ctaBar("zara","zara.com"),
       chrome:{label:"Ad",close:null,reward:"+5 moves"}, onClose:()=>{ G.left=(G.left||0)+5; go("l2",{keep:true}); toast("+5 moves added"); } };
   });
   const t0=Date.now();
