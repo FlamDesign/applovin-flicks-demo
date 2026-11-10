@@ -271,6 +271,8 @@ a{color:inherit}
 .shopcard .si img{width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
 .shopcard .sn{font-size:12px;font-weight:600;line-height:1.25;margin:6px 2px 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:30px}
 .shopcard .sb{margin:0 2px;font-size:12px;font-weight:700;color:#fff;background:#1d1a2e;border-radius:8px;padding:5px 0;text-align:center}
+.vscrub{height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin:14px 4px 0;overflow:hidden}
+.vscrub i{display:block;height:100%;width:0;background:#fff}
 .flatnote{font-size:13px;opacity:.7;text-align:center;margin-top:10px}
 
 /* flick host */
@@ -529,6 +531,7 @@ const BR = {
     src:"https://flicks.flamapp.live/z70k1k/ad.js", base:[540,540], cta:"Explore",
     variants:[{n:"Optiq",img:CAD("wab2wtdhjqvp93u3awoo9729")},{n:"Celestiq",img:CAD("rivsbyktpswgcbta3xoih3rb")},{n:"Escalade-V",img:CAD("iwiak68bxr6ga8ysyjz7i81p")}] }
 };
+const CAD_VIDEO = { lib:"https://flicks.flamapp.live/ad-webgl.1955140.js", vrt:"https://flicks.flamapp.live/z70k1k/vrt?p=6adadcf47d67ed475f6ef74c", dur:13 };
 const GAP_CAT = [
   ["UltraSoft Denim Relaxed Utility Shirt",GAPW("0063/895/560/cn63895560.jpg"),"https://www.gap.com/browse/product.do?pid=1180457002"],
   ["Denim Relaxed Utility Shirt Jacket",GAPW("0063/024/244/cn63024244.jpg"),"https://www.gap.com/browse/product.do?pid=913482002"],
@@ -577,12 +580,12 @@ const FMT = [
     flick:"A playable built from real footage, not a cartoon: pick a stay, the video switches, then Get the app.",
     learns:"Which stay sells the install, before the store page.",
     how:"The Flick is uploaded as the playable in an AppLovin app campaign." },
-  { id:"dsp", name:"Video + end card",
-    where:"The same level break, bought by a brand through a DSP on AppLovin Exchange.",
-    rule:"VAST 4.x, MP4 only, then a full-screen companion end card. No VPAID.",
-    flick:"After the video, the end card is a Flick: pick the model, then explore it.",
-    learns:"Model preference from viewers who just watched the spot.",
-    how:"MRAID Flick as the companion end card, bought through a DSP." }
+  { id:"dsp", name:"Flick + video card",
+    where:"The level break after level 3, bought by a brand through a DSP on AppLovin Exchange.",
+    rule:"Full-screen interstitial, MRAID 2.0. AppLovin draws the close button.",
+    flick:"The Flick comes first: pick a model. The video card that follows plays the model the viewer picked, taken straight from the Flick.",
+    learns:"Model preference, then whether the viewer stays to watch it move.",
+    how:"One MRAID creative bought through a DSP into AppLovin Exchange." }
 ];
 const FMTX = Object.fromEntries(FMT.map((f,i)=>[f.id,{...f,i}]));
 
@@ -928,26 +931,34 @@ function adPlayable(){
   });
 }
 
-/* ---------- 8. DSP video + end card (Cadillac) ---------- */
+/* ---------- 6. Flick, then a video card (Cadillac) ---------- */
+const CAD_PARTS=["Flick","Video"];
+/* Plays one video straight out of the Cadillac Flick: the same player, no buttons, set to the model the viewer picked. */
+function flickVideo(diff){
+  const id="fv"+Date.now();
+  const doc=`<!doctype html><meta charset=utf-8><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}vertex-player{display:block;width:100vw;height:100vh}</style><script>(function(){var D=${diff|0};new MutationObserver(function(){var v=document.querySelector("vertex-player");if(v&&!v.__f){v.__f=1;v.addEventListener("vertex-ready",function(){try{v._player.setDiff(D)}catch(e){}parent.postMessage({flamv:1,id:${JSON.stringify(id)}},"*")})}}).observe(document.documentElement,{childList:true,subtree:true})})()<\/script><script src="${CAD_VIDEO.lib}"><\/script><vertex-player src="${CAD_VIDEO.vrt}"></vertex-player>`;
+  return { id, html:`<div class="flick" id="${id}"><iframe title="Cadillac video" allow="autoplay" scrolling="no" style="position:absolute;inset:0;width:100%;height:100%;border:0" srcdoc="${esc(doc)}"></iframe><div class="fstate load"></div><div class="blocker" style="cursor:pointer" onclick="ctaClick('cad')"></div></div>` };
+}
+addEventListener("message", e=>{ const d=e.data; if(!d||d.flamv!==1) return; const el=document.getElementById(d.id); el&&el.querySelector(".fstate")?.classList.add("hide"); });
 function adDsp(part=0){
   const B=BR.cad;
   if(part===0){
-    const sv=stillVideo(B.variants.map(v=>v.img),["Move into EV luxury.","Optiq. Celestiq. Escalade-V.","Cadillac. Explore the lineup."],9,false);
-    openAd(()=>({ html:`${sv.html}${ctaBar("cad","cadillac.com")}`, chrome:{label:"Ad",close:5,skip:true,parts:["Video","End card"],part:0,onSkip:()=>adDsp(1)}, onClose:null }));
-    sv.run(()=>adDsp(1)); return;
-  }
-  openAd(()=>{
-    if(MODE==="today") return { html:`<div class="ipage" style="background:#0f0f10"><div class="bg" style="background-image:url('${B.variants[0].img}')"></div>
-        <div class="ip-head"><div class="k">Cadillac</div><h3>Move into EV luxury.</h3></div>
-        <div class="stagebox"><div class="fbox sq"><img class="still" src="${B.variants[0].img}" alt="Cadillac Optiq"></div></div>
-        <div class="flatnote">Static companion end card.</div></div>${ctaBar("cad","cadillac.com")}`,
-      chrome:{label:"Ad",close:3,parts:["Video","End card"],part:1}, onClose:()=>go("end") };
-    const host=flickHost("cad"), sid=lastSlot();
-    return { html:`<div class="ipage" style="background:#0f0f10"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3a2a24,#0b0b0c)"></div>
+    openAd(()=>{ const host=flickHost("cad"), sid=lastSlot();
+      return { html:`<div class="ipage" style="background:#0f0f10;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3a2a24,#0b0b0c)"></div>
         <div class="ip-head"><div class="k">Cadillac</div><h3>Which Cadillac is yours?</h3></div>
-        <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("cad",sid)}</div>${ctaBar("cad","cadillac.com")}`,
-      chrome:{label:"Ad",close:3,parts:["Video","End card"],part:1}, onClose:()=>go("end") };
-  });
+        <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("cad",sid)}</div>`,
+        chrome:{label:"Ad",close:5,skip:true,parts:CAD_PARTS,part:0,onSkip:()=>adDsp(1)}, onClose:null }; });
+    return;
+  }
+  const k=PICK.cad||0, v=B.variants[k], secs=CAD_VIDEO.dur;
+  const fv=flickVideo(k);
+  openAd(()=>({ html:`<div class="ipage" style="background:#0b0b0c"><div class="bg" style="background-image:url('${v.img}')"></div>
+      <div class="ip-head"><div class="k">Cadillac</div><h3>${esc(v.n)}, in motion.</h3></div>
+      <div class="stagebox"><div class="fbox sq">${fv.html}</div></div>
+      <div class="vscrub"><i id="cadScrub"></i></div></div>${ctaBar("cad",`Explore the ${v.n}`)}`,
+    chrome:{label:"Ad",close:3,parts:CAD_PARTS,part:1}, onClose:()=>go("end") }));
+  const t0=Date.now();
+  every(()=>{ const el=$("#cadScrub"); if(!el) return; el.style.width=Math.min(100,((Date.now()-t0)/1000)%secs/secs*100)+"%"; }, 100);
 }
 
 /* ---------- 4. MREC (Ben & Jerry's) on the complete screen ---------- */
@@ -1036,7 +1047,7 @@ function rerender(){
     if(id==="rewarded") adRewarded();
     else if(id==="play") adPlayable();
     else if(id==="inter") adInter();
-    else if(id==="dsp"){ const p=$("#ad .parts .on"); adDsp(p&&p.textContent==="End card"?1:0); }
+    else if(id==="dsp"){ const p=$("#ad .parts .on"); adDsp(p&&p.textContent==="Video"?1:0); }
     else closeAd(true);
   }
 }
@@ -1058,7 +1069,7 @@ function nextStep(){
     case "rewarded": if(AD&&AD.finish&&!$("#ad .ad-top .ctrl")) AD.finish(); else closeAd(); break;
     case "done2": go("l3"); break;
     case "play": closeAd(); break;
-    case "dsp": { const p=$("#ad .parts .on"); if(p&&p.textContent==="Video"){ clearTimers(); adDsp(1); } else closeAd(); break; }
+    case "dsp": { const p=$("#ad .parts .on"); if(p&&p.textContent==="Flick"){ clearTimers(); adDsp(1); } else closeAd(); break; }
     case "end": restart(); break;
   }
   renderPanel();
