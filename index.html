@@ -1054,7 +1054,7 @@ function rerender(){
 function restart(){ closeM(); for(const k in PICK) delete PICK[k]; go("splash"); }
 function nextLabel(){
   const ad=$("#ad").classList.contains("on");
-  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Next level",l3:"Solve the level",play:"Close the playable",dsp:"Next part of the ad",end:"Play again"})[SID] || "Next";
+  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Next level",l3:"Solve the level",play:"Close the playable",dsp:(($("#ad .parts .on")||{}).textContent==="Video"?"Close the ad":"Play the video card"),end:"Play again"})[SID] || "Next";
 }
 function nextStep(){
   closeSheet();
