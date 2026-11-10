@@ -273,6 +273,7 @@ a{color:inherit}
 .shopcard .sb{margin:0 2px;font-size:12px;font-weight:700;color:#fff;background:#1d1a2e;border-radius:8px;padding:5px 0;text-align:center}
 .vcap{position:absolute;left:16px;right:16px;bottom:110px;z-index:31;display:flex;flex-direction:column;gap:2px;text-shadow:0 2px 12px rgba(0,0,0,.5)}
 .vcap b{font-size:22px;letter-spacing:.02em}.vcap span{font-size:15px;opacity:.9}
+.fgrid{grid-auto-rows:max-content;min-height:0}
 .fgrid .ftile{background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .fgrid .ftile.hero{grid-column:1/-1}
 .ftile .fim{position:relative;flex:none;aspect-ratio:1/1;background:#0d0d0f}
@@ -865,6 +866,7 @@ function openAd(builder){
   el.classList.add("on");
   if(!spec.lazy) mountFlicks(el);
   startChrome(spec.chrome);
+  if(typeof SID!=="undefined") setTimeout(renderPanel,0);
 }
 function chromeHTML(c){
   let right="";
