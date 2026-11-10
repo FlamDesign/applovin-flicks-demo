@@ -261,6 +261,7 @@ a{color:inherit}
 .tapnote .dot{width:8px;height:8px;border-radius:50%;background:#7ef0b0;box-shadow:0 0 0 4px rgba(126,240,176,.25);animation:pulse 1.4s infinite}
 .ff{position:absolute!important;left:0;right:0;bottom:106px}
 .ff .flick{background:#000}
+.ff.v916{right:auto;left:50%;transform:translateX(-50%);aspect-ratio:9/16;max-width:100%}
 @media (max-width:900px){.ff{margin-top:env(safe-area-inset-top)}}
 .nowpill{position:absolute;left:50%;transform:translateX(-50%);bottom:112px;z-index:31;display:flex;align-items:center;gap:6px;white-space:nowrap;background:rgba(0,0,0,.6);color:#fff;font-size:13px;padding:7px 12px;border-radius:999px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .nowpill .dot{width:8px;height:8px;border-radius:50%;background:#7ef0b0}
@@ -953,7 +954,7 @@ const CAT_BRANDS=["zara","levis","gap","patagonia"];
 function adCatalog(part=0){
   if(part===0){
     const secs=10;
-    openAd(()=>({ html:`<div class="ipage" style="padding:0;background:#000"><div class="ff" style="top:140px">${flickVideo("zara",0)}</div></div>
+    openAd(()=>({ html:`<div class="ipage" style="padding:0;background:#000"><div class="ff v916" style="top:140px">${flickVideo("zara",0)}</div></div>
       <div class="vcap"><b>Zara</b><span>Bomber season. New in.</span></div>${ctaBar("zara","zara.com")}`,
       chrome:{label:"Ad",close:5,skip:true,parts:CAT_PARTS,part:0,onSkip:()=>adCatalog(1)}, onClose:null }));
     const t0=Date.now();
