@@ -947,7 +947,7 @@ function adDsp(part=0){
       return { html:`<div class="ipage" style="background:#0f0f10;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3a2a24,#0b0b0c)"></div>
         <div class="ip-head"><div class="k">Cadillac</div><h3>Which Cadillac is yours?</h3></div>
         <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("cad",sid)}</div>`,
-        chrome:{label:"Ad",close:5,skip:true,parts:CAD_PARTS,part:0,onSkip:()=>adDsp(1)}, onClose:null }; });
+        chrome:{label:"Ad",close:15,skip:true,parts:CAD_PARTS,part:0,onSkip:()=>adDsp(1)}, onClose:null }; });
     return;
   }
   const k=PICK.cad||0, v=B.variants[k], secs=CAD_VIDEO.dur;
