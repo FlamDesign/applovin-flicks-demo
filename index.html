@@ -397,7 +397,7 @@ a{color:inherit}
 <body>
 <div class="stage">
   <header class="topbar">
-    <div class="brandline"><b>Flicks on AppLovin</b><span>Flicks in every AppLovin placement, in one play session. Concept demo by Flam.</span></div>
+    <div class="brandline"><b>Flicks on AppLovin</b><span>Four AppLovin placements, a Flick in each, in one play session. Concept demo by Flam.</span></div>
   </header>
   <div class="main">
     <div class="phonecol" id="phonecol">
@@ -473,8 +473,8 @@ a{color:inherit}
             <!-- end -->
             <section class="g" id="g-end" aria-label="Done">
               <svg class="logo-bloom" viewBox="0 0 100 100" aria-hidden="true"><use href="#bloom" fill="#ffb02e"/></svg>
-              <h2>That's every placement</h2>
-              <p>One session, five AppLovin placements, a Flick in every one. Pick any format to see it again.</p>
+              <h2>That's all four</h2>
+              <p>One session, four AppLovin placements, a Flick in every one. Pick any format to see it again.</p>
               <button class="cbtn" onclick="restart()">Play again</button>
             </section>
 
@@ -497,7 +497,7 @@ a{color:inherit}
 
 <div class="fmt" id="fmt">
   <div class="fmt-list" id="fmtList" role="menu"></div>
-  <button class="fmt-btn" onclick="toggleFmt()" aria-haspopup="menu">Ad formats <i>5</i></button>
+  <button class="fmt-btn" onclick="toggleFmt()" aria-haspopup="menu">Ad formats <i>4</i></button>
 </div>
 <div class="msheet" id="msheet" onclick="if(event.target===this)closeM()"><div id="msheetIn"></div></div>
 
@@ -603,13 +603,7 @@ const FMT = [
     rule:"AppLovin runs three screens: a full-screen video, the end card, then a product catalog of up to 12 products.",
     flick:"The Flick is the video and the end card in one screen, so three screens become two. Every catalog tile is a Flick too: switch the look, then shop it.",
     learns:"Which product and which variant each viewer chose, across the whole catalog.",
-    how:"The Flick is uploaded as the interactive page. AppLovin builds catalog tiles from the product feed today, so Flick tiles need AppLovin to take one Flick per product." },
-  { id:"playable", name:"Playable",
-    where:"Level complete, bought by app advertisers.",
-    rule:"One HTML file under 5MB, MRAID 2.0, store click through mraid.open(). AppLovin draws the close button.",
-    flick:"A playable built from real footage, not a cartoon: pick a stay, the video switches, then Get the app.",
-    learns:"Which stay sells the install, before the store page.",
-    how:"The Flick is uploaded as the playable in an AppLovin app campaign." }
+    how:"The Flick is uploaded as the interactive page. AppLovin builds catalog tiles from the product feed today, so Flick tiles need AppLovin to take one Flick per product." }
 ];
 const FMTX = Object.fromEntries(FMT.map((f,i)=>[f.id,{...f,i}]));
 
@@ -711,12 +705,12 @@ function lastSlot(){ return "s"+slotSeq; }
    ===================================================================== */
 let MODE = "flick";
 function fmtOf(sid){
-  return ({inter:"interstitial",cat:"catalog",done1:"mrec",l2:"rewarded",offer:"rewarded",rewarded:"rewarded",play:"playable"})[sid] || null;
+  return ({inter:"interstitial",cat:"catalog",done1:"mrec",l2:"rewarded",offer:"rewarded",rewarded:"rewarded"})[sid] || null;
 }
 function panelHTML(){
   const f = FMTX[fmtOf(SID)];
-  if(!f) return `<div class="p-step">${SID==="end"?"Journey complete":"Between ads"}</div><h2 class="p-title">${SID==="end"?"A Flick in every placement":"Bloom Sort"}</h2>
-    <div class="p-rows"><div class="p-row"><p>Five AppLovin placements, each one a Flick: interstitial, MREC, portrait Flick, product catalog and playable.</p></div></div>
+  if(!f) return `<div class="p-step">${SID==="end"?"Journey complete":"Between ads"}</div><h2 class="p-title">${SID==="end"?"A Flick in every ad":"Bloom Sort"}</h2>
+    <div class="p-rows"><div class="p-row"><p>Four AppLovin placements, each one a Flick: interstitial, MREC, portrait Flick and product catalog.</p></div></div>
     <div class="p-actions"><button class="btn-next" onclick="${SID==="end"?"restart()":"nextStep()"}">${SID==="end"?"Play the journey again":esc(nextLabel())}</button></div>
     <div class="foot">Concept demo by Flam. Not an AppLovin product.</div>`;
   return `<div class="p-step">Placement ${f.i+1} of ${FMT.length}</div>
@@ -745,7 +739,7 @@ function openM(k){ MSHEET=k; $("#msheetIn").innerHTML = k==="info" ? panelHTML()
 function closeM(){ $("#msheet").classList.remove("on"); }
 function jump(id){
   toggleFmt(false); closeM();
-  const to = {catalog:"cat",interstitial:"inter",mrec:"done1",rewarded:"offer",playable:"play"}[id];
+  const to = {catalog:"cat",interstitial:"inter",mrec:"done1",rewarded:"offer"}[id];
   go(to, {jump:true});
 }
 
@@ -835,7 +829,7 @@ function burst(){
 }
 function win(){
   burst(); toast(`Level ${G.lvl} complete`);
-  later(()=>{ go(({1:"inter",2:"cat",3:"play"})[G.lvl]); }, 1100);
+  later(()=>{ go(({1:"inter",2:"cat",3:"end"})[G.lvl]); }, 1100);
 }
 
 function drawMap(){
@@ -930,22 +924,6 @@ function adRewarded(){
   AD.finish=()=>{ /* presenter: jump to the end of the countdown */ const t=Date.now()-secs*1000; clearTimers(); every(()=>{},1e6); const f=$("#rwFill"); if(f){ f.style.width="100%"; $("#rwCnt").textContent="Earned"; } if(!$("#ad .ad-top .ctrl")) $("#ad .ad-top").insertAdjacentHTML("beforeend",`<button class="ctrl x" aria-label="Close and collect reward" onclick="closeAd()">${XSVG}</button>`); };
 }
 
-/* ---------- 7. playable (Airbnb) ---------- */
-function adPlayable(){
-  openAd(()=>{
-    const B=BR.airbnb;
-    if(MODE==="today") return { html:`<div class="ipage" style="background:#fff;color:#222"><div class="play-hd"><h3>Find your next stay</h3><p>Homes for every kind of trip</p></div>
-        <div class="stagebox"><div class="fbox land" style="background:#ddd"><img class="still" src="${AIRBNB_STILL}" alt="A bright holiday home bedroom"></div></div>
-        <div class="flatnote" style="color:#222">A static end card. One picture, one button.</div></div>${ctaBar("airbnb","Free on the App Store")}`,
-      chrome:{label:"Ad",close:5}, onClose:()=>go("end") };
-    const host=flickHost("airbnb"), sid=lastSlot();
-    return { html:`<div class="ipage" style="background:#1c1012"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#4a1f29,#140b0d)"></div>
-        <div class="play-hd"><h3>What kind of stay?</h3><p>A view, the beach or room to play</p></div>
-        <div class="stagebox"><div class="fbox land">${host}</div></div></div>${ctaBar("airbnb","Free on the App Store")}`,
-      chrome:{label:"Ad",close:5}, onClose:()=>go("end") };
-  });
-}
-
 /* ---------- Flick + product catalog: the Flick is the video and the end card, then the catalog ---------- */
 const CAT_PARTS=["Flick","Catalog"];
 const CAT_BRANDS=["coach","levis","gap","patagonia"];
@@ -971,8 +949,7 @@ function adCatalog(part=0){
 function viewAd(){
   if(G.solved||G.auto) return;
   if(G.lvl===1) go("inter",{jump:true});
-  else if(G.lvl===2) go(G.left===LEVELS[2].limit?"offer":"cat",{jump:true});
-  else go("play",{jump:true});
+  else go(G.left===LEVELS[2].limit?"offer":"cat",{jump:true});
 }
 function shopSlot(sid){ const s=SLOTS[sid]; if(!s) return; const B=BR[s.brand], v=B.variants[s.variant]||{}; leave(s.brand, v.url||B.url); }
 
@@ -993,7 +970,7 @@ function drawDone(n){
   $("#doneReward").textContent= n===1?"+50 coins":"+80 coins";
   const w=$("#mrecWrap");
   if(n===1){ drawMrec(); $("#doneActions").innerHTML=`<button class="cbtn green" onclick="go('l2')">Next level</button>`; }
-  else { dropFlicks(w); w.innerHTML=""; $("#doneActions").innerHTML=`<button class="cbtn green" onclick="go('l3')">Next level</button>`; }
+  else { dropFlicks(w); w.innerHTML=""; $("#doneActions").innerHTML=`<button class="cbtn green" onclick="go('end')">Finish</button>`; }
 }
 
 /* ---------- rewarded offer modal ---------- */
@@ -1022,7 +999,7 @@ function closeSheet(){ $("#scrim").classList.remove("on"); }
    FLOW
    ===================================================================== */
 let SID="splash";
-const SCREEN = { splash:"splash", appopen:"splash", home:"home", l1:"level", l2:"level", l3:"level", offer:"level", rewarded:"level", inter:"level", cat:"level", done1:"done", done2:"done", shop:"shop", play:"level", end:"end" };
+const SCREEN = { splash:"splash", appopen:"splash", home:"home", l1:"level", l2:"level", l3:"level", offer:"level", rewarded:"level", inter:"level", cat:"level", done1:"done", done2:"done", shop:"shop", end:"end" };
 function show(screen){ document.querySelectorAll(".g").forEach(g=>g.classList.toggle("on", g.id==="g-"+screen)); }
 function go(id, o={}){
   const prevScreen = SCREEN[SID];
@@ -1046,7 +1023,6 @@ function go(id, o={}){
     case "inter": if(G.lvl!==1||!G.solved){ startLevel(1); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[],[]]; G.solved=true; drawBoard(); } adInter(); break;
     case "done1": drawDone(1); break;
     case "done2": drawDone(2); break;
-    case "play": if(G.lvl!==3||!G.solved){ startLevel(3); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[],[]]; G.solved=true; drawBoard(); } adPlayable(); break;
     case "cat": if(G.lvl!==2||!G.solved){ startLevel(2); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[3,3,3,3],[],[]]; G.solved=true; drawBoard(); } adCatalog(0); break;
     case "end": break;
   }
@@ -1059,7 +1035,6 @@ function rerender(){
   if(id==="done1") drawMrec();
   if($("#ad").classList.contains("on")){
     if(id==="rewarded") adRewarded();
-    else if(id==="play") adPlayable();
     else if(id==="inter") adInter();
     else closeAd(true);
   }
@@ -1067,7 +1042,7 @@ function rerender(){
 function restart(){ closeM(); for(const k in PICK) delete PICK[k]; go("splash"); }
 function nextLabel(){
   const ad=$("#ad").classList.contains("on");
-  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",cat:(($("#ad .parts .on")||{}).textContent==="Flick"?"Go to the catalog":"Close the ad"),done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Next level",l3:"Solve the level",play:"Close the playable",end:"Play again"})[SID] || "Next";
+  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",cat:(($("#ad .parts .on")||{}).textContent==="Flick"?"Go to the catalog":"Close the ad"),done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Finish",l3:"Solve the level",end:"Play again"})[SID] || "Next";
 }
 function nextStep(){
   closeSheet();
@@ -1081,8 +1056,7 @@ function nextStep(){
     case "offer": go("rewarded"); break;
     case "rewarded": if(AD&&AD.finish&&!$("#ad .ad-top .ctrl")) AD.finish(); else closeAd(); break;
     case "cat": { const p=$("#ad .parts .on")?.textContent; if(p==="Flick"){ clearTimers(); adCatalog(1); } else closeAd(); break; }
-    case "done2": go("l3"); break;
-    case "play": closeAd(); break;
+    case "done2": go("end"); break;
     case "end": restart(); break;
   }
   renderPanel();
