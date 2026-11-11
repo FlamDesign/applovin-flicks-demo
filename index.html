@@ -474,7 +474,7 @@ a{color:inherit}
             <section class="g" id="g-end" aria-label="Done">
               <svg class="logo-bloom" viewBox="0 0 100 100" aria-hidden="true"><use href="#bloom" fill="#ffb02e"/></svg>
               <h2>That's every placement</h2>
-              <p>One session, six AppLovin placements, a Flick in every one. Pick any format to see it again.</p>
+              <p>One session, five AppLovin placements, a Flick in every one. Pick any format to see it again.</p>
               <button class="cbtn" onclick="restart()">Play again</button>
             </section>
 
@@ -497,7 +497,7 @@ a{color:inherit}
 
 <div class="fmt" id="fmt">
   <div class="fmt-list" id="fmtList" role="menu"></div>
-  <button class="fmt-btn" onclick="toggleFmt()" aria-haspopup="menu">Ad formats <i>6</i></button>
+  <button class="fmt-btn" onclick="toggleFmt()" aria-haspopup="menu">Ad formats <i>5</i></button>
 </div>
 <div class="msheet" id="msheet" onclick="if(event.target===this)closeM()"><div id="msheetIn"></div></div>
 
@@ -562,7 +562,6 @@ const BR = {
     src:"https://flicks.flamapp.live/z70k1k/ad.js", base:[540,540], cta:"Explore",
     variants:[{n:"Optiq",img:CAD("wab2wtdhjqvp93u3awoo9729")},{n:"Celestiq",img:CAD("rivsbyktpswgcbta3xoih3rb")},{n:"Escalade-V",img:CAD("iwiak68bxr6ga8ysyjz7i81p")}] }
 };
-const CAD_VIDEO = { dur:13 };
 const GAP_CAT = [
   ["UltraSoft Denim Relaxed Utility Shirt",GAPW("0063/895/560/cn63895560.jpg"),"https://www.gap.com/browse/product.do?pid=1180457002"],
   ["Denim Relaxed Utility Shirt Jacket",GAPW("0063/024/244/cn63024244.jpg"),"https://www.gap.com/browse/product.do?pid=913482002"],
@@ -583,10 +582,10 @@ const AIRBNB_STILL = "https://images.unsplash.com/photo-1505691938895-1758d7feb5
 const FMT = [
   { id:"interstitial", name:"Interstitial",
     where:"The natural break after a level. Interstitial and rewarded split AppLovin Ads spend about evenly.",
-    rule:"Full screen at a level break. AppLovin draws the close button, held 3 to 10 seconds. One HTML file under 5MB.",
-    flick:"A Flick with shoppable products under it. Pick a piece in the video and its product lights up; tap any product to shop it.",
-    learns:"Which product each viewer picked.",
-    how:"The Flick is uploaded as the ad's interactive page: one offline HTML file, assets inlined, no network calls." },
+    rule:"Full screen at a level break. AppLovin draws the close button after a set hold. One HTML file under 5MB.",
+    flick:"A Cadillac Flick with the three models under it. Pick a model in the video and its card lights up; tap any card to enquire.",
+    learns:"Which model each viewer picked.",
+    how:"The Flick is uploaded as the ad's interactive page, or bought through a DSP as MRAID on AppLovin Exchange." },
   { id:"mrec", name:"MREC 300x250",
     where:"The level complete screen, under the score, while the player reads their reward.",
     rule:"300x250, HTML, MRAID or VAST video.",
@@ -599,24 +598,18 @@ const FMT = [
     flick:"A full-screen 9:16 Flick: three Zara looks in one rewarded slot, chosen by a viewer giving full attention.",
     learns:"Style preference at the moment of highest attention in the game.",
     how:"MRAID Flick bought through a DSP into AppLovin Exchange's rewarded inventory." },
-  { id:"catalog", name:"Video, end card, catalog", howTitle:"How it runs",
-    where:"The level break after level 2. AppLovin's three-screen unit, shown in interstitial and rewarded placements.",
-    rule:"Screen 1: full-screen 9:16 video, skip after 5s. Screen 2: the end card (interactive page), held 3 to 10s. Screen 3: the product catalog, up to 12 products per viewer.",
-    flick:"Flicks on all three screens: the video is cut from the Zara Flick, the end card is the Coach Flick, and every catalog tile is a Flick the viewer can switch before shopping.",
+  { id:"catalog", name:"Flick + product catalog", howTitle:"How it runs",
+    where:"The level break after level 2. AppLovin's video, end card and catalog unit, shown in interstitial and rewarded placements.",
+    rule:"AppLovin runs three screens: a full-screen video, the end card, then a product catalog of up to 12 products.",
+    flick:"The Flick is the video and the end card in one screen, so three screens become two. Every catalog tile is a Flick too: switch the look, then shop it.",
     learns:"Which product and which variant each viewer chose, across the whole catalog.",
-    how:"Video: a Flick variant exported as the MP4. End card: the Flick uploaded as the interactive page. Catalog: AppLovin builds the tiles from the product feed today, so Flick tiles need AppLovin to take one Flick per product." },
+    how:"The Flick is uploaded as the interactive page. AppLovin builds catalog tiles from the product feed today, so Flick tiles need AppLovin to take one Flick per product." },
   { id:"playable", name:"Playable",
     where:"Level complete, bought by app advertisers.",
     rule:"One HTML file under 5MB, MRAID 2.0, store click through mraid.open(). AppLovin draws the close button.",
     flick:"A playable built from real footage, not a cartoon: pick a stay, the video switches, then Get the app.",
     learns:"Which stay sells the install, before the store page.",
-    how:"The Flick is uploaded as the playable in an AppLovin app campaign." },
-  { id:"dsp", name:"Flick + video card",
-    where:"The level break after level 3, bought by a brand through a DSP on AppLovin Exchange.",
-    rule:"Full-screen interstitial, MRAID 2.0. AppLovin draws the close button.",
-    flick:"The Flick comes first: pick a model. The video card that follows plays the model the viewer picked, taken straight from the Flick.",
-    learns:"Model preference, then whether the viewer stays to watch it move.",
-    how:"One MRAID creative bought through a DSP into AppLovin Exchange." }
+    how:"The Flick is uploaded as the playable in an AppLovin app campaign." }
 ];
 const FMTX = Object.fromEntries(FMT.map((f,i)=>[f.id,{...f,i}]));
 
@@ -718,12 +711,12 @@ function lastSlot(){ return "s"+slotSeq; }
    ===================================================================== */
 let MODE = "flick";
 function fmtOf(sid){
-  return ({inter:"interstitial",cat:"catalog",done1:"mrec",l2:"rewarded",offer:"rewarded",rewarded:"rewarded",play:"playable",dsp:"dsp"})[sid] || null;
+  return ({inter:"interstitial",cat:"catalog",done1:"mrec",l2:"rewarded",offer:"rewarded",rewarded:"rewarded",play:"playable"})[sid] || null;
 }
 function panelHTML(){
   const f = FMTX[fmtOf(SID)];
   if(!f) return `<div class="p-step">${SID==="end"?"Journey complete":"Between ads"}</div><h2 class="p-title">${SID==="end"?"A Flick in every placement":"Bloom Sort"}</h2>
-    <div class="p-rows"><div class="p-row"><p>Six AppLovin placements with a Flick in each: interstitial, MREC, rewarded, the three-screen video, end card and catalog unit, playable, and a Flick with a video card.</p></div></div>
+    <div class="p-rows"><div class="p-row"><p>Five AppLovin placements, each one a Flick: interstitial, MREC, rewarded, product catalog and playable.</p></div></div>
     <div class="p-actions"><button class="btn-next" onclick="${SID==="end"?"restart()":"nextStep()"}">${SID==="end"?"Play the journey again":esc(nextLabel())}</button></div>
     <div class="foot">Concept demo by Flam. Not an AppLovin product.</div>`;
   return `<div class="p-step">Placement ${f.i+1} of ${FMT.length}</div>
@@ -752,7 +745,7 @@ function openM(k){ MSHEET=k; $("#msheetIn").innerHTML = k==="info" ? panelHTML()
 function closeM(){ $("#msheet").classList.remove("on"); }
 function jump(id){
   toggleFmt(false); closeM();
-  const to = {catalog:"cat",interstitial:"inter",mrec:"done1",rewarded:"offer",playable:"play",dsp:"dsp"}[id];
+  const to = {catalog:"cat",interstitial:"inter",mrec:"done1",rewarded:"offer",playable:"play"}[id];
   go(to, {jump:true});
 }
 
@@ -913,13 +906,13 @@ function fullFlick(brand, flat, top){
   const host=flickHost(brand,{block:flat});
   return `<div class="ipage" style="padding:0;background:#000"><div class="ff" style="top:${top}px">${host}</div></div>`;
 }
-/* ---------- 3. interstitial (Gap): one screen, a Flick with shoppable products ---------- */
+/* ---------- interstitial (Cadillac): one screen, a Flick with enquire cards ---------- */
 function adInter(){
-  openAd(()=>{ const host=flickHost("gap"), sid=lastSlot();
-    return { html:`<div class="ipage" style="background:#122b5e;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#24498f,#0d1f45)"></div>
-      <div class="ip-head"><div class="k">Gap</div><h3>Fall layers, new in.</h3></div>
-      <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("gap",sid)}</div>`,
-      chrome:{label:"Ad",close:3}, onClose:()=>go("done1") }; });
+  openAd(()=>{ const host=flickHost("cad"), sid=lastSlot();
+    return { html:`<div class="ipage" style="background:#0f0f10;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3a2a24,#0b0b0c)"></div>
+      <div class="ip-head"><div class="k">Cadillac</div><h3>Which Cadillac is yours?</h3></div>
+      <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("cad",sid)}</div>`,
+      chrome:{label:"Ad",close:15}, onClose:()=>go("done1") }; });
 }
 function tile(n,img,url){ return `<button class="tile" onclick="leave('gap','${url}')"><div class="im"><img src="${img}" alt="" loading="lazy"></div><div class="tn">${esc(n)}</div><div class="ts">Shop now</div></button>`; }
 
@@ -944,43 +937,34 @@ function adPlayable(){
     if(MODE==="today") return { html:`<div class="ipage" style="background:#fff;color:#222"><div class="play-hd"><h3>Find your next stay</h3><p>Homes for every kind of trip</p></div>
         <div class="stagebox"><div class="fbox land" style="background:#ddd"><img class="still" src="${AIRBNB_STILL}" alt="A bright holiday home bedroom"></div></div>
         <div class="flatnote" style="color:#222">A static end card. One picture, one button.</div></div>${ctaBar("airbnb","Free on the App Store")}`,
-      chrome:{label:"Ad",close:5}, onClose:()=>go("dsp") };
+      chrome:{label:"Ad",close:5}, onClose:()=>go("end") };
     const host=flickHost("airbnb"), sid=lastSlot();
     return { html:`<div class="ipage" style="background:#1c1012"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#4a1f29,#140b0d)"></div>
         <div class="play-hd"><h3>What kind of stay?</h3><p>Tap one in the video, then get the app</p></div>
         <div class="stagebox"><div class="fbox land">${host}</div></div></div>${ctaBar("airbnb","Free on the App Store")}`,
-      chrome:{label:"Ad",close:5}, onClose:()=>go("dsp") };
+      chrome:{label:"Ad",close:5}, onClose:()=>go("end") };
   });
 }
 
-/* ---------- 4. Video, end card, catalog: Flicks on all three screens ---------- */
-const CAT_PARTS=["Video","End card","Catalog"];
-const CAT_BRANDS=["zara","levis","gap","patagonia"];
+/* ---------- Flick + product catalog: the Flick is the video and the end card, then the catalog ---------- */
+const CAT_PARTS=["Flick","Catalog"];
+const CAT_BRANDS=["coach","levis","gap","patagonia"];
 function adCatalog(part=0){
   if(part===0){
-    const secs=10;
-    openAd(()=>({ html:`<div class="ipage" style="padding:0;background:#000"><div class="ff v916" style="top:140px">${flickVideo("zara",0)}</div></div>
-      <div class="vcap"><b>Zara</b><span>Bomber season. New in.</span></div>${ctaBar("zara","zara.com")}`,
-      chrome:{label:"Ad",close:5,skip:true,parts:CAT_PARTS,part:0,onSkip:()=>adCatalog(1)}, onClose:null }));
-    const t0=Date.now();
-    every(()=>{ if((Date.now()-t0)/1000>=secs&&SID==="cat"&&$("#ad .parts .on")?.textContent==="Video"){ clearTimers(); adCatalog(1); } }, 250);
-    return;
-  }
-  if(part===1){
     openAd(()=>{ const host=flickHost("coach"), sid=lastSlot();
       return { html:`<div class="ipage" style="background:#16120f;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3b2c22,#0f0c0a)"></div>
         <div class="ip-head"><div class="k">Coach</div><h3>Pick your bag.</h3></div>
         <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("coach",sid)}</div>`,
-        chrome:{label:"Ad",close:3,skip:true,parts:CAT_PARTS,part:1,onSkip:()=>adCatalog(2)}, onClose:null }; });
+        chrome:{label:"Ad",close:5,skip:true,parts:CAT_PARTS,part:0,onSkip:()=>adCatalog(1)}, onClose:null }; });
     return;
   }
-  // catalog: every tile is a Flick; the bag picked on the end card leads
+  // catalog: every tile is a Flick; the Coach tile opens on the bag picked in the Flick
   const k=PICK.coach||0;
-  const tile=(brand,hero)=>{ const B=BR[brand], host=flickHost(brand), sid=lastSlot(), v=B.variants[brand==="coach"?k:0];
-    return `<div class="ftile ${hero?"hero":""}"><div class="fim" style="background:${B.bg||"#0d0d0f"}">${host}</div><div class="fmeta"><span class="fb">${esc(B.name)}</span><span class="fn" data-name="${sid}">${esc(v.n)}</span></div><button class="fshop" onclick="shopSlot('${sid}')">Shop</button></div>`; };
+  const tile=brand=>{ const B=BR[brand], host=flickHost(brand), sid=lastSlot(), v=B.variants[brand==="coach"?k:0];
+    return `<div class="ftile"><div class="fim" style="background:${B.bg||"#0d0d0f"}">${host}</div><div class="fmeta"><span class="fb">${esc(B.name)}</span><span class="fn" data-name="${sid}">${esc(v.n)}</span></div><button class="fshop" onclick="shopSlot('${sid}')">Shop</button></div>`; };
   openAd(()=>({ html:`<div class="cat"><div class="cat-h"><div><b>Shop the fall edit</b><span>Tap any video to switch the look, then shop it</span></div></div>
-      <div class="cat-grid fgrid" id="fgrid">${tile("coach",true)}${CAT_BRANDS.map(b=>tile(b,false)).join("")}</div></div>`,
-    chrome:{label:"Ad",close:2,parts:CAT_PARTS,part:2}, onClose:()=>go("done2"), lazy:true }));
+      <div class="cat-grid fgrid" id="fgrid">${CAT_BRANDS.map(tile).join("")}</div></div>`,
+    chrome:{label:"Ad",close:2,parts:CAT_PARTS,part:1}, onClose:()=>go("done2"), lazy:true }));
   $("#ad").style.background="#f6f4f0";
   lazyFlicks($("#fgrid"));
 }
@@ -991,37 +975,6 @@ function viewAd(){
   else go("play",{jump:true});
 }
 function shopSlot(sid){ const s=SLOTS[sid]; if(!s) return; const B=BR[s.brand], v=B.variants[s.variant]||{}; leave(s.brand, v.url||B.url); }
-
-/* ---------- 6. Flick, then a video card (Cadillac) ---------- */
-const CAD_PARTS=["Flick","Video"];
-/* Plays one video straight out of a Flick: the brand's own tag and player, with its buttons and links left off, set to one variant. */
-function flickVideo(brand, diff, onTap){
-  const B=BR[brand], id="fv"+(++slotSeq);
-  const shim=`(function(){var av=function(s){return /av01|av1/i.test(String(s||''))};try{if(window.VideoDecoder&&VideoDecoder.isConfigSupported){var o=VideoDecoder.isConfigSupported.bind(VideoDecoder);VideoDecoder.isConfigSupported=function(q){return q&&av(q.codec)?Promise.resolve({supported:false,config:q}):o(q)}}}catch(e){}})();(function(){var sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(this.tagName==="VERTEX-PLAYER"&&(n==="ui-src"||n==="cta-url"||n==="cta-urls"))return;return sa.call(this,n,v)};var D=${diff|0};new MutationObserver(function(){var v=document.querySelector("vertex-player");if(v&&!v.__f){v.__f=1;v.addEventListener("vertex-ready",function(){try{v._player.setDiff(D)}catch(e){}parent.postMessage({flamv:1,id:${JSON.stringify(id)}},"*")})}}).observe(document.documentElement,{childList:true,subtree:true})})();`;
-  const doc=`<!doctype html><meta charset=utf-8><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}</style><script>${shim}<\/script><script>var ExitApi={exit:function(){}},clickTag="";<\/script>${B.adConfig?`<script>${B.adConfig}<\/script>`:""}<script src="${B.src}"><\/script>`;
-  return `<div class="flick" id="${id}"><iframe title="${esc(B.name)} video" allow="autoplay" scrolling="no" style="position:absolute;inset:0;width:100%;height:100%;border:0" srcdoc="${esc(doc)}"></iframe><div class="fstate load"></div><div class="blocker" style="cursor:pointer" onclick="${onTap||`ctaClick('${brand}')`}"></div></div>`;
-}
-addEventListener("message", e=>{ const d=e.data; if(!d||d.flamv!==1) return; const el=document.getElementById(d.id); el&&el.querySelector(".fstate")?.classList.add("hide"); });
-function adDsp(part=0){
-  const B=BR.cad;
-  if(part===0){
-    openAd(()=>{ const host=flickHost("cad"), sid=lastSlot();
-      return { html:`<div class="ipage" style="background:#0f0f10;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3a2a24,#0b0b0c)"></div>
-        <div class="ip-head"><div class="k">Cadillac</div><h3>Which Cadillac is yours?</h3></div>
-        <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("cad",sid)}</div>`,
-        chrome:{label:"Ad",close:15,skip:true,parts:CAD_PARTS,part:0,onSkip:()=>adDsp(1)}, onClose:null }; });
-    return;
-  }
-  const k=PICK.cad||0, v=B.variants[k], secs=CAD_VIDEO.dur;
-  const fv={html:flickVideo("cad",k)};
-  openAd(()=>({ html:`<div class="ipage" style="background:#0b0b0c"><div class="bg" style="background-image:url('${v.img}')"></div>
-      <div class="ip-head"><div class="k">Cadillac</div><h3>${esc(v.n)}, in motion.</h3></div>
-      <div class="stagebox"><div class="fbox sq">${fv.html}</div></div>
-      <div class="vscrub"><i id="cadScrub"></i></div></div>${ctaBar("cad",`Explore the ${v.n}`)}`,
-    chrome:{label:"Ad",close:3,parts:CAD_PARTS,part:1}, onClose:()=>go("end") }));
-  const t0=Date.now();
-  every(()=>{ const el=$("#cadScrub"); if(!el) return; el.style.width=Math.min(100,((Date.now()-t0)/1000)%secs/secs*100)+"%"; }, 100);
-}
 
 /* ---------- 4. MREC (Ben & Jerry's) on the complete screen ---------- */
 function drawMrec(){
@@ -1069,7 +1022,7 @@ function closeSheet(){ $("#scrim").classList.remove("on"); }
    FLOW
    ===================================================================== */
 let SID="splash";
-const SCREEN = { splash:"splash", appopen:"splash", home:"home", l1:"level", l2:"level", l3:"level", offer:"level", rewarded:"level", inter:"level", cat:"level", done1:"done", done2:"done", shop:"shop", play:"level", dsp:"level", end:"end" };
+const SCREEN = { splash:"splash", appopen:"splash", home:"home", l1:"level", l2:"level", l3:"level", offer:"level", rewarded:"level", inter:"level", cat:"level", done1:"done", done2:"done", shop:"shop", play:"level", end:"end" };
 function show(screen){ document.querySelectorAll(".g").forEach(g=>g.classList.toggle("on", g.id==="g-"+screen)); }
 function go(id, o={}){
   const prevScreen = SCREEN[SID];
@@ -1094,7 +1047,6 @@ function go(id, o={}){
     case "done1": drawDone(1); break;
     case "done2": drawDone(2); break;
     case "play": if(G.lvl!==3||!G.solved){ startLevel(3); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[],[]]; G.solved=true; drawBoard(); } adPlayable(); break;
-    case "dsp": if(G.lvl!==3){ startLevel(3); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4],[],[]]; G.solved=true; drawBoard(); } adDsp(0); break;
     case "cat": if(G.lvl!==2||!G.solved){ startLevel(2); G.tubes=[[0,0,0,0],[1,1,1,1],[2,2,2,2],[3,3,3,3],[],[]]; G.solved=true; drawBoard(); } adCatalog(0); break;
     case "end": break;
   }
@@ -1109,14 +1061,13 @@ function rerender(){
     if(id==="rewarded") adRewarded();
     else if(id==="play") adPlayable();
     else if(id==="inter") adInter();
-    else if(id==="dsp"){ const p=$("#ad .parts .on"); adDsp(p&&p.textContent==="Video"?1:0); }
     else closeAd(true);
   }
 }
 function restart(){ closeM(); for(const k in PICK) delete PICK[k]; go("splash"); }
 function nextLabel(){
   const ad=$("#ad").classList.contains("on");
-  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",cat:(({"Video":"Go to the end card","End card":"Go to the catalog"})[($("#ad .parts .on")||{}).textContent]||"Close the ad"),done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Next level",l3:"Solve the level",play:"Close the playable",dsp:(($("#ad .parts .on")||{}).textContent==="Video"?"Close the ad":"Play the video card"),end:"Play again"})[SID] || "Next";
+  return ({splash:"Skip the splash",home:"Play level 1",l1:"Solve the level",inter:"Close the ad",cat:(($("#ad .parts .on")||{}).textContent==="Flick"?"Go to the catalog":"Close the ad"),done1:"Next level",l2:(G.left===LEVELS[2].limit?"Play until out of moves":"Solve the level"),offer:"Watch the ad for +5 moves",rewarded:"Finish the ad",done2:"Next level",l3:"Solve the level",play:"Close the playable",end:"Play again"})[SID] || "Next";
 }
 function nextStep(){
   closeSheet();
@@ -1129,10 +1080,9 @@ function nextStep(){
     case "done1": go("l2"); break;
     case "offer": go("rewarded"); break;
     case "rewarded": if(AD&&AD.finish&&!$("#ad .ad-top .ctrl")) AD.finish(); else closeAd(); break;
-    case "cat": { const p=$("#ad .parts .on")?.textContent; if(p==="Video"){ clearTimers(); adCatalog(1); } else if(p==="End card"){ clearTimers(); adCatalog(2); } else closeAd(); break; }
+    case "cat": { const p=$("#ad .parts .on")?.textContent; if(p==="Flick"){ clearTimers(); adCatalog(1); } else closeAd(); break; }
     case "done2": go("l3"); break;
     case "play": closeAd(); break;
-    case "dsp": { const p=$("#ad .parts .on"); if(p&&p.textContent==="Flick"){ clearTimers(); adDsp(1); } else closeAd(); break; }
     case "end": restart(); break;
   }
   renderPanel();
