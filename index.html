@@ -339,7 +339,7 @@ a{color:inherit}
 .blocker{position:absolute;inset:0;z-index:5;cursor:not-allowed}
 
 /* 30s unskippable: Zara Flick */
-.zf{position:absolute;left:0;right:0;top:140px;bottom:112px;overflow:hidden}
+.zf{position:absolute!important;left:0;right:0;top:140px;bottom:112px;overflow:hidden}
 .zf-in{position:absolute;left:50%;top:50%;width:360px;height:640px;transform-origin:50% 50%;transform:translate(-50%,-50%);border-radius:14px;overflow:hidden;background:#111}
 .zf-in iframe{position:absolute;inset:0;width:360px;height:640px;border:0}
 .zf-shop{position:absolute;left:214px;top:30px;width:130px;height:42px;border-radius:21px;z-index:3}
@@ -1071,7 +1071,7 @@ function zaraFlick(){
       <button class="zf-shop" aria-label="Shop now on zara.com" onclick="leave('zara')"></button>
     </div></div>`;
 }
-function fitZara(){ const box=$("#zf"), inn=$("#zfIn"); if(!box||!inn) return; const sc=Math.min(box.clientWidth/360, box.clientHeight/640); inn.style.transform=`translate(-50%,-50%) scale(${sc})`; }
+function fitZara(){ const box=$("#zf"), inn=$("#zfIn"); if(!box||!inn||!box.clientHeight) return; const sc=Math.min(box.clientWidth/360, box.clientHeight/640); inn.style.transform=`translate(-50%,-50%) scale(${sc})`; }
 addEventListener("resize", fitZara);
 addEventListener("message", e=>{ if(e.data&&e.data.type==="flowy:flick:size"){ const l=$("#zfLoad"); l&&l.classList.add("hide"); } });
 function rwChrome(){
@@ -1082,7 +1082,7 @@ function adRewarded(){
       <div class="ad-cta zara">${logo("zara",50)}<div class="tt"><b>ZARA</b><span>New season outerwear · zara.com</span></div><button onclick="leave('zara')">Shop now</button></div>`,
     chrome:{label:"Ad",close:null,reward:"+5 moves"}, onClose:()=>{ G.left=(G.left||0)+5; go("l2",{keep:true}); toast("+5 moves added"); } }));
   $("#ad .ad-top").insertAdjacentHTML("beforeend",`<button class="ctrl mute" aria-label="Sound off" onclick="toast('The ad plays muted')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button>`+rwChrome());
-  requestAnimationFrame(fitZara); setTimeout(fitZara,60);
+  requestAnimationFrame(fitZara); setTimeout(fitZara,60); if(window.ResizeObserver) new ResizeObserver(fitZara).observe($("#zf"));
   const t0=Date.now(), arc=$("#ringArc");
   const earn=()=>{ const c=$("#rwCtrl"); if(!c||!c.disabled) return; c.disabled=false; c.className="ctrl x"; c.innerHTML=XSVG; c.setAttribute("aria-label","Close and collect reward"); c.onclick=()=>closeAd(); const f=$("#rwFill"); if(f) f.style.width="100%"; const rc=$("#rwCnt"); if(rc) rc.textContent="Earned"; toast("Reward earned. Close to collect."); };
   every(()=>{ const el=(Date.now()-t0)/1000, f=$("#rwFill"), c=$("#rwCnt"), sec=$("#rwSec"); if(!f) return; const r=Math.max(0,Math.ceil(RW_SECS-el));
