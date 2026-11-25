@@ -472,6 +472,18 @@ body{background:#ebebef}
 .xf-row small{display:block;font-size:13px;color:#6c6782;margin-top:1px}
 @media (max-width:900px){ :root{--st:env(safe-area-inset-top,0px)} .sbar{display:none} body{background:#000} }
 
+/* Explore Flicks: same control as the Meta demos */
+.xfbtn{position:absolute;z-index:130;left:12px;top:60%;min-width:150px;height:34px;padding:0 12px;border-radius:999px;background:#121212;color:#f2f2f2;font:600 13px -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 0 0 1px #282828,0 10px 15px -3px rgba(0,0,0,.6),0 4px 6px -4px rgba(0,0,0,.6);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.xfbtn:active{cursor:grabbing}
+.xfbtn .chev{flex:none;opacity:.75;transform:rotate(90deg);transition:transform .2s}
+.xfbtn[aria-expanded="true"] .chev{transform:rotate(-90deg)}
+.xfmenu{position:absolute;z-index:131;min-width:188px;width:max-content;border-radius:18px;background:#121212;padding:4px 0;overflow:hidden;box-shadow:0 0 0 1px #282828,0 20px 25px -5px rgba(0,0,0,.25),0 8px 10px -6px rgba(0,0,0,.25)}
+.xfmenu[hidden]{display:none}
+.xfmenu button{display:flex;width:100%;align-items:center;white-space:nowrap;padding:10px 16px;text-align:left;font:400 14px -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#f2f2f2}
+.xfmenu button:hover,.xfmenu button:focus-visible{background:#282828;outline:none}
+.zf-shop{display:none}
+.zf-in.embed .zf-shop{display:block}
+
 /* a button that presses itself after 5 seconds */
 .cbtn.auto{gap:12px;padding-right:16px}
 .aring{position:relative;width:34px;height:34px;flex:none}
@@ -602,11 +614,11 @@ body{background:#ebebef}
             <div class="ad" id="ad" role="dialog" aria-label="Ad"></div>
             <div class="sheet-scrim" id="scrim" onclick="if(event.target===this)closeSheet()"></div>
             <div class="toast" id="toast" role="status" aria-live="polite"></div>
-            <div class="msheet" id="msheet" onclick="if(event.target===this)closeM()"><div id="msheetIn" role="dialog" aria-label="Explore Flicks"></div></div>
             <div class="mbar">
               <button class="mhome" onclick="restart()" aria-label="Back to home"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>Home</button>
-              <button class="xf" onclick="openM()" aria-haspopup="dialog"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1l2.6 7.4L22 11l-7.4 2.6L12 21l-2.6-7.4L2 11l7.4-2.6z"/></svg>Explore Flicks</button>
             </div>
+            <button class="xfbtn" id="xfBtn" aria-label="Explore Flicks" aria-expanded="false" aria-haspopup="menu">Explore Flicks<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg></button>
+            <div class="xfmenu" id="xfMenu" role="menu" aria-label="Flicks" hidden></div>
           </div>
         </div>
       </div>
@@ -839,15 +851,29 @@ let MODE = "flick";
 function fmtOf(sid){
   return ({inter:"interstitial",cat:"catalog",done1:"mrec",offer:"rewarded",rewarded:"rewarded"})[sid] || null;
 }
-function renderPanel(){ if($("#msheet").classList.contains("on")) openM(); }
-addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeSheet(); closeM(); } });
-function openM(){
-  const cur=fmtOf(SID);
-  $("#msheetIn").innerHTML=`<div class="xf-grab"></div><div class="xf-h"><b>Explore Flicks</b><button onclick="closeM()" aria-label="Close">&times;</button></div>`+
-    FMT.map((f,i)=>`<button class="xf-row ${f.id===cur?"on":""}" onclick="jump('${f.id}')"><span class="n">${i+1}</span><span><b>${esc(f.name)}</b><small>${f.brand}</small></span></button>`).join("");
-  $("#msheet").classList.add("on");
+/* ---------- Explore Flicks: the floating, draggable control used in the Meta demos ---------- */
+const XF_ITEMS={interstitial:"Flicks for Interstitial", mrec:"Flicks for MREC", rewarded:"Flicks for 30s Unskippable", catalog:"Flicks for Product Catalog"};
+function openM(){ const b=$("#xfBtn"), m=$("#xfMenu"), s=$("#screen");
+  m.innerHTML=FMT.map(f=>`<button role="menuitem" onclick="jump('${f.id}')">${XF_ITEMS[f.id]||esc(f.name)}</button>`).join("");
+  m.hidden=false; b.setAttribute("aria-expanded","true");
+  const bx=b.offsetLeft, by=b.offsetTop, bh=b.offsetHeight, sh=s.offsetHeight, sw=s.offsetWidth;
+  m.style.left=Math.max(8, Math.min(bx, sw-m.offsetWidth-8))+"px";
+  if(by+bh/2 > sh/2){ m.style.top=""; m.style.bottom=(sh-by+6)+"px"; } else { m.style.bottom=""; m.style.top=(by+bh+6)+"px"; }
 }
-function closeM(){ $("#msheet").classList.remove("on"); }
+function closeM(){ const m=$("#xfMenu"); if(!m) return; m.hidden=true; $("#xfBtn").setAttribute("aria-expanded","false"); }
+function renderPanel(){}
+(function(){
+  const b=$("#xfBtn"); let st=null;
+  b.addEventListener("pointerdown", e=>{ st={x:e.clientX,y:e.clientY,l:b.offsetLeft,t:b.offsetTop,moved:false,k:scrScale()}; b.setPointerCapture(e.pointerId); });
+  b.addEventListener("pointermove", e=>{ if(!st) return; const dx=(e.clientX-st.x)/st.k, dy=(e.clientY-st.y)/st.k;
+    if(!st.moved && Math.hypot(dx,dy)<5) return; st.moved=true; closeM();
+    const s=$("#screen"); b.style.left=Math.max(6,Math.min(st.l+dx, s.offsetWidth-b.offsetWidth-6))+"px"; b.style.top=Math.max(6,Math.min(st.t+dy, s.offsetHeight-b.offsetHeight-6))+"px"; });
+  b.addEventListener("pointerup", ()=>{ if(st&&!st.moved){ $("#xfMenu").hidden ? openM() : closeM(); } st=null; });
+  b.addEventListener("pointercancel", ()=>{ st=null; });
+  b.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); $("#xfMenu").hidden ? openM() : closeM(); } });
+  document.addEventListener("pointerdown", e=>{ if(!e.target.closest("#xfBtn,#xfMenu")) closeM(); });
+  addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeSheet(); closeM(); } });
+})();
 function jump(id){
   closeM();
   const to = {catalog:"cat",interstitial:"inter",mrec:"done1",rewarded:"rewarded"}[id];
@@ -1099,12 +1125,100 @@ function adInter(){
 function tile(n,img,url){ return `<button class="tile" onclick="leave('gap','${url}')"><div class="im"><img src="${img}" alt="" loading="lazy"></div><div class="tn">${esc(n)}</div><div class="ts">Shop now</div></button>`; }
 
 /* ---------- 30s unskippable (Zara Flick, VAST + interactive layer) ---------- */
+/* ---------- Zara Flick, played through our own copy of Flowy's player host ----------
+   The ad's VAST is fetched live, the Flick's own "Shop now" button (vx-cta) is taken out of its overlay,
+   because the 30s slot already has a Shop now bar, and the Flick plays exactly as Flowy's embed plays it.
+   If the VAST cannot be read, the regular embed is used instead. */
+const ZARA_VAST="https://serve-dev.ads.flamapp.ai/vast/flCQX4ThyZ2B4cQlMAQD2pu5";
+let ZARA_XML=null;
+function zaraXml(){
+  if(ZARA_XML && Date.now()-ZARA_XML.at<5*60*1000) return ZARA_XML.p;
+  const p=fetch(ZARA_VAST,{credentials:"omit"}).then(r=>r.ok?r.text():Promise.reject(new Error("VAST "+r.status))).then(xml=>{
+    let removed=0;
+    const out=xml.replace(/<button[^>]*?data-vertex-trigger[^>]*>[^<]*<\/button>/g,()=>{ removed++; return ""; });
+    if(!removed) console.warn("Zara Flick: no Shop now button found in the overlay");
+    return out;
+  });
+  ZARA_XML={p, at:Date.now()}; p.catch(()=>{ ZARA_XML=null; });
+  return p;
+}
+/* runs inside the Flick frame: same steps as Flowy's embed page (video + SIMID interactive layer) */
+function zaraHost(){
+  var stage=document.getElementById("stage"), xml=window.ZX;
+  var SANDBOX="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox";
+  function safe(u){ try{ var x=new URL(u); return x.protocol==="https:"||x.protocol==="http:"?x.href:""; }catch(e){ return ""; } }
+  function tx(el){ return (el.textContent||"").trim(); }
+  function cb(){ return String(Math.floor(Math.random()*1e8)).padStart(8,"0"); }
+  function ping(urls){ urls.forEach(function(u){ new Image().src=u.replace(/\[CACHEBUSTING\]/g,cb()).replace(/\[ERRORCODE\]/g,""); }); }
+  var doc=new DOMParser().parseFromString(xml,"application/xml"), ad=doc.getElementsByTagName("Ad")[0];
+  function fail(){ parent.postMessage({type:"zara:error"},"*"); }
+  if(!ad){ fail(); return; }
+  var all=function(t){ return Array.prototype.slice.call(ad.getElementsByTagName(t)); };
+  var media=all("MediaFile").map(function(el){ return {url:safe(tx(el)), w:Number(el.getAttribute("width"))||0}; }).filter(function(m){ return m.url; }).sort(function(a,b){ return a.w-b.w; });
+  if(!media.length){ fail(); return; }
+  var simid=all("InteractiveCreativeFile").find(function(el){ return el.getAttribute("apiFramework")==="SIMID"; });
+  var creative=simid?safe(tx(simid)):"", apEl=all("AdParameters")[0], params=apEl?tx(apEl):"";
+  var imps=all("Impression").map(function(el){ return safe(tx(el)); }).filter(Boolean);
+  var clicks=all("ClickTracking").map(function(el){ return safe(tx(el)); }).filter(Boolean);
+  var target=innerWidth*(devicePixelRatio||1), m=media.find(function(x){ return x.w>=target; })||media[media.length-1];
+  var video=document.createElement("video");
+  video.muted=true; video.loop=true; video.autoplay=true; video.playsInline=true; video.setAttribute("muted",""); video.setAttribute("playsinline","");
+  video.addEventListener("loadedmetadata",function(){ parent.postMessage({type:"flowy:flick:size",width:video.videoWidth,height:video.videoHeight},"*"); });
+  var seen=false; video.addEventListener("playing",function(){ if(!seen){ seen=true; ping(imps); } });
+  video.src=m.url; stage.appendChild(video); video.play().catch(function(){});
+  if(!creative||!params) return;
+  var frame=document.createElement("iframe");
+  frame.setAttribute("allow","autoplay"); frame.setAttribute("sandbox",SANDBOX); frame.title="Interactive layer"; frame.src=creative;
+  stage.appendChild(frame);
+  var origin=new URL(creative).origin, sid=null, out=0, initId=null, startId=null;
+  var timeout=setTimeout(fail,10000);
+  function send(type,args){ var id=out++; frame.contentWindow.postMessage(JSON.stringify({sessionId:sid,messageId:id,timestamp:Date.now(),type:type,args:args}),origin); return id; }
+  function media_(kind){ if(sid) send("SIMID:Media:"+kind,{}); }
+  addEventListener("message",function(e){
+    if(e.source!==frame.contentWindow) return;
+    var v=e.data; if(typeof v==="string"){ try{ v=JSON.parse(v); }catch(x){ return; } }
+    if(!v||typeof v.type!=="string"||typeof v.sessionId!=="string"||typeof v.messageId!=="number") return;
+    var args=v.args&&typeof v.args==="object"?v.args:{};
+    if(v.type==="createSession"){
+      sid=v.sessionId; startId=null; clearTimeout(timeout);
+      send("resolve",{messageId:v.messageId,value:{}});
+      initId=send("SIMID:Player:init",{ environmentData:{ videoDimensions:{width:video.videoWidth,height:video.videoHeight}, creativeDimensions:{width:frame.clientWidth,height:frame.clientHeight},
+        fullscreen:false, fullscreenAllowed:false, variableDurationAllowed:false, skippableState:"adHandles", navigationSupport:"adHandles", closeButtonSupport:"adHandles", muted:video.muted, volume:video.volume, version:"1.0" },
+        creativeData:{ adParameters:params, clickThruUrl:"" } });
+      return;
+    }
+    if(v.sessionId!==sid) return;
+    if(v.type==="resolve"){ if(args.messageId===initId){ initId=null; startId=send("SIMID:Player:startCreative",{}); } else if(args.messageId===startId){ startId=null; if(!video.paused) media_("play"); } }
+    else if(v.type==="reject"){ if(args.messageId===initId||args.messageId===startId) fail(); }
+    else if(v.type==="SIMID:Creative:clickThru"){ ping(clicks); parent.postMessage({type:"zara:click"},"*"); }
+    else if(v.type==="SIMID:Creative:requestPause"){ video.pause(); send("resolve",{messageId:v.messageId,value:{}}); }
+    else if(v.type==="SIMID:Creative:requestPlay"){ video.play().catch(function(){}); send("resolve",{messageId:v.messageId,value:{}}); }
+  });
+  function loopT(t,d){ return d>0&&isFinite(d)&&t>=d?t%d:t; }
+  if(video.requestVideoFrameCallback){ var loop=function(now,md){ if(sid) send("SIMID:Media:timeupdate",{currentTime:loopT(md.mediaTime,video.duration)}); video.requestVideoFrameCallback(loop); }; video.requestVideoFrameCallback(loop); }
+  else setInterval(function(){ if(!video.paused&&sid) send("SIMID:Media:timeupdate",{currentTime:video.currentTime}); },100);
+  ["play","pause","playing"].forEach(function(k){ video.addEventListener(k,function(){ media_(k); }); });
+}
+function zaraSrcdoc(xml){
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#stage{position:relative;width:100%;height:100%}#stage video,#stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}#stage video{object-fit:contain}#stage iframe{background:transparent;color-scheme:light}</style></head><body><div id="stage"></div><script>window.ZX=${JSON.stringify(xml).replace(/</g,"\\u003c")};(${zaraHost.toString()})();<\/script></body></html>`;
+}
+function mountZara(){
+  const f=$("#zfFrame"); if(!f) return;
+  zaraXml().then(xml=>{ if($("#zfFrame")===f) f.srcdoc=zaraSrcdoc(xml); })
+    .catch(err=>{ console.warn("Zara Flick: using the regular embed", err); if($("#zfFrame")!==f) return; f.src=BR.zara.embed; $("#zfIn").classList.add("embed"); });
+}
+addEventListener("message", e=>{
+  if(!e.data||typeof e.data!=="object") return;
+  if(e.data.type==="zara:click") leave("zara");
+  if(e.data.type==="zara:error"){ const f=$("#zfFrame"); console.warn("Zara Flick: interactive layer did not start"); if(f&&!f.src){ f.removeAttribute("srcdoc"); f.src=BR.zara.embed; $("#zfIn").classList.add("embed"); } }
+});
+
 const RW_SECS=30;
 function zaraFlick(){
   // The Flick renders at its design size (360x640) and is scaled to the slot, so its own buttons keep their place.
   const B=BR.zara;
   return `<div class="zf" id="zf"><div class="zf-in" id="zfIn">
-      <iframe title="Zara Flick" allow="autoplay" src="${B.embed}" width="360" height="640"></iframe>
+      <iframe id="zfFrame" title="Zara Flick" allow="autoplay" width="360" height="640"></iframe>
       <div class="fstate load" id="zfLoad"></div>
       <button class="zf-shop" aria-label="Shop now on zara.com" onclick="leave('zara')"></button>
     </div></div>`;
@@ -1120,7 +1234,7 @@ function adRewarded(){
       <div class="ad-cta zara">${logo("zara",50)}<div class="tt"><b>ZARA</b><span>New season outerwear · zara.com</span></div><button onclick="leave('zara')">Shop now</button></div>`,
     chrome:{label:"Ad",close:null,reward:"+5 moves"}, onClose:()=>{ go("win2"); toast("+5 moves. Level cleared!"); } }));
   $("#ad .ad-top").insertAdjacentHTML("beforeend",`<button class="ctrl mute" aria-label="Sound off" onclick="toast('The ad plays muted')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button>`+rwChrome());
-  requestAnimationFrame(fitZara); setTimeout(fitZara,60); if(window.ResizeObserver) new ResizeObserver(fitZara).observe($("#zf"));
+  mountZara(); requestAnimationFrame(fitZara); setTimeout(fitZara,60); if(window.ResizeObserver) new ResizeObserver(fitZara).observe($("#zf"));
   const t0=Date.now(), arc=$("#ringArc");
   const earn=()=>{ const c=$("#rwCtrl"); if(!c||!c.disabled) return; c.disabled=false; c.className="ctrl x"; c.innerHTML=XSVG; c.setAttribute("aria-label","Close and collect reward"); c.onclick=()=>closeAd(); const f=$("#rwFill"); if(f) f.style.width="100%"; const rc=$("#rwCnt"); if(rc) rc.textContent="Earned"; toast("Reward earned. Close to collect."); };
   every(()=>{ const el=(Date.now()-t0)/1000, f=$("#rwFill"), c=$("#rwCnt"), sec=$("#rwSec"); if(!f) return; const r=Math.max(0,Math.ceil(RW_SECS-el));
@@ -1205,6 +1319,7 @@ function staticBoard(b, tubes, rows, cap){
   b.innerHTML=rows.map(r=>`<div class="row">${Array.from({length:r},()=>{ const t=tubes[k++], done=t.length===4&&t.every(c=>c===t[0]); return `<div class="vase ${done?"done":""}">${t.map(c=>flower(c)).join("")}${done?TICK:""}</div>`; }).join("")}</div>`).join("");
 }
 function drawFail(still=false){
+  zaraXml().catch(()=>{});
   const tubes=[[0,1,1,1],[1,0,0,0],[2,2,2,2],[3,3,3],[3]];
   autoButton($("#failActions"), { label:"+5 moves", pre:`<span class="adbadge">Ad</span>`, run:()=>go("rewarded"), still });
   staticBoard($("#failBoard"), tubes, [3,2], 40);
