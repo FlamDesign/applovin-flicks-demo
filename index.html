@@ -258,9 +258,13 @@ a{color:inherit}
 .rw-bar .track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
 .rw-bar .track i{display:block;height:100%;width:0;background:#ffcf33}
 .parts{position:absolute;left:14px;right:14px;top:100px;z-index:30;display:flex;gap:6px}
-.parts span{flex:1;font-size:11px;font-weight:600;color:rgba(255,255,255,.55);padding-top:7px;border-top:3px solid rgba(255,255,255,.25);text-align:left}
-.parts span.on{color:#fff;border-color:#fff}
-.parts span.done{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.7)}
+.parts span{position:relative;flex:1;font-size:11px;font-weight:600;color:rgba(255,255,255,.55);padding-top:10px;text-align:left}
+.parts span::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:2px;background:rgba(255,255,255,.25)}
+.parts span .fill{position:absolute;left:0;top:0;height:3px;width:0;border-radius:2px;background:#fff}
+.parts span.on{color:#fff}
+.parts span.on:not(.live) .fill{width:100%}
+.parts span.done{color:rgba(255,255,255,.75)}
+.parts span.done .fill{width:100%;background:rgba(255,255,255,.7)}
 .ad-cta{position:absolute;left:12px;right:12px;bottom:22px;z-index:30;height:76px;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.96);color:#1d1a2e;border-radius:20px;padding:0 12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .ad-cta .lg{width:48px;height:48px;border-radius:12px;flex:none;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;overflow:hidden}
 .ad-cta .tt{flex:1;min-width:0;line-height:1.2}
@@ -1073,13 +1077,14 @@ function openAd(builder){
   el.classList.add("on");
   if(!spec.lazy) mountFlicks(el);
   startChrome(spec.chrome);
+  startPart(spec.chrome);
   if(typeof SID!=="undefined") setTimeout(renderPanel,0);
 }
 function chromeHTML(c){
   let right="";
   if(c.close!=null) right=`<button class="ctrl" id="adCtrl" aria-label="Close ad" disabled>${ring()}<span id="adCnt">${c.close||""}</span></button>`;
   return `<div class="ad-top"><span class="ad-lbl">${esc(c.label||"Ad")}<span class="i">i</span></span><span class="sp"></span>${right}</div>`+
-    (c.parts?`<div class="parts">${c.parts.map((p,i)=>`<span class="${i<c.part?"done":i===c.part?"on":""}">${esc(p)}</span>`).join("")}</div>`:"")+
+    (c.parts?`<div class="parts">${c.parts.map((p,i)=>`<span class="${i<c.part?"done":i===c.part?(c.partSecs?"on live":"on"):""}"><i class="fill"></i>${esc(p)}</span>`).join("")}</div>`:"")+
     (c.reward?`<div class="rw-bar"><span>${esc(c.reward)}</span><span class="track"><i id="rwFill"></i></span><span id="rwCnt"></span></div>`:"");
 }
 function ring(){ return `<svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5"/><circle id="ringArc" cx="18" cy="18" r="15.5" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="97.4" stroke-dashoffset="0" transform="rotate(-90 18 18)" style="transition:stroke-dashoffset 1s linear"/></svg>`; }
@@ -1090,6 +1095,14 @@ function startChrome(c){
   if(!total){ arm(); return; }
   const arc=$("#ringArc"); requestAnimationFrame(()=>{ if(arc) arc.style.strokeDashoffset = (97.4/total).toString(); });
   every(()=>{ if(!document.body.contains(ctrl)||!ctrl.disabled) return; left--; const cn=$("#adCnt"); if(cn) cn.textContent=left>0?left:""; if(arc) arc.style.strokeDashoffset=(97.4*(total-left+1)/total).toString(); if(left<=0) arm(); }, 1000);
+}
+/* Live progress on the current part: fills over partSecs, then moves to the next part. */
+function startPart(c){
+  if(!c||!c.parts||!c.partSecs) return;
+  const ms=c.partSecs*1000, t0=Date.now();
+  const tick=every(()=>{ const f=$("#ad .parts span.live .fill"); if(!f){ clearInterval(tick); return; }
+    const p=Math.min(1,(Date.now()-t0)/ms); f.style.width=(p*100)+"%";
+    if(p>=1){ clearInterval(tick); c.onPartEnd&&c.onPartEnd(); } }, 100);
 }
 function closeAd(silent){
   const el=$("#ad"); if(!el.classList.contains("on")) return;
@@ -1253,7 +1266,7 @@ function adCatalog(part=0){
       return { html:`<div class="ipage" style="background:#16120f;padding-bottom:22px"><div class="bg2" style="background:radial-gradient(90% 60% at 50% 35%,#3b2c22,#0f0c0a)"></div>
         <div class="ip-head"><div class="k">Coach</div><h3>Pick your bag.</h3></div>
         <div class="stagebox"><div class="fbox sq">${host}</div></div>${shopRow("coach",sid)}</div>`,
-        chrome:{label:"Ad",close:5,skip:true,parts:CAT_PARTS,part:0,onSkip:()=>adCatalog(1)}, onClose:null }; });
+        chrome:{label:"Ad",close:5,skip:true,parts:CAT_PARTS,part:0,partSecs:12,onPartEnd:()=>adCatalog(1),onSkip:()=>adCatalog(1)}, onClose:null }; });
     return;
   }
   // catalog: every tile is a Flick; the Coach tile opens on the bag picked in the Flick
